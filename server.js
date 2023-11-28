@@ -29,7 +29,15 @@ server.post('/transactions', async (req, res) => {
   await connection.query('INSERT INTO transaction(client_sender, client_receiver, amount, date) VALUES(?, ?, ?, ?)', [transaction.client_sender, transaction.client_receiver, transaction.amount, transaction.date]);
 
   res.sendStatus(200);
-})
+});
+
+server.delete('/transactions/:id', async (req, res) => {
+  const connection = await createConnection();
+  const transactionId = req.params.id;
+
+  await connection.query('DELETE FROM transaction WHERE id = ?', [transactionId]);
+  return res.sendStatus(200);
+});
 
 
 server.listen(port, () => {
