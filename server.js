@@ -22,7 +22,6 @@ server.get('/transactions/:id', async (req, res) => {
 })
 
 server.post('/transactions', async (req, res) => {
-  
   const connection = await createConnection();
   const transaction = req.body;
 
@@ -39,6 +38,16 @@ server.delete('/transactions/:id', async (req, res) => {
   return res.sendStatus(200);
 });
 
+server.put('/transactions/:id', async (req, res) => {
+  const connection = await createConnection();
+  const transactionId = req.params.id;
+  const updatedTransaction = req.body;
+
+  await connection.query('UPDATE transaction SET client_sender=?, client_receiver=?, amount=?, date=?, comment=? WHERE id=?',
+      [updatedTransaction.client_sender, updatedTransaction.client_receiver, updatedTransaction.amount, updatedTransaction.date, updatedTransaction.comment, transactionId]);
+
+  res.sendStatus(200);
+});
 
 server.listen(port, () => {
   console.log(`server Up ! and listening on port ${port}`)
