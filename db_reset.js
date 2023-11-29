@@ -1,4 +1,4 @@
-import createConnection from './db_connection.js';
+const createConnection = require("./db_connection.js");
 
 async function resetDatabase() {
   try {

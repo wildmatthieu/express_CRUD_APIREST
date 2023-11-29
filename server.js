@@ -1,5 +1,5 @@
-import express from "express";
-import createConnection from "./db_connection.js";
+const express = require("express");
+const createConnection = require("./db_connection.js");
 
 const server = express();
 const port = 3000;
@@ -8,7 +8,6 @@ server.use(express.json()); // NE PAS OUBLIER !!!
 
 // (Crud : CREATE) Création d'une nouvelle transaction bancaire
 server.post("/transactions", async (req, res) => {
-  const connection = await createConnection();
   const transaction = req.body;
 
   // patate chaude : /!\ le montant de la transaction dépasse les 100000 ou est inférieur à 1
@@ -21,6 +20,7 @@ server.post("/transactions", async (req, res) => {
       });
   }
 
+  const connection = await createConnection();
   await connection.query(
     "INSERT INTO transaction(client_sender, client_receiver, amount, date, comment) VALUES(?, ?, ?, ?, ?)",
     [
@@ -31,21 +31,22 @@ server.post("/transactions", async (req, res) => {
       transaction.comment,
     ]
   );
+  connection.end();
 
-  res.sendStatus(200);
+  return res.sendStatus(200);
 });
 
 // (cRud : READ) Lecture de toutes les transactions bancaires
 server.get("/transactions", async (req, res) => {
   const connection = await createConnection();
-
   const results = await connection.query("SELECT * from transaction");
-  res.json(results[0]);
+  connection.end();
+
+  return res.json(results[0]);
 });
 
 // (cRud : READ) Lecture d'une transactions bancaires
 server.get("/transactions/:id", async (req, res) => {
-  const connection = await createConnection();
   const transactionId = req.params.id;
 
   // patate chaude : /!\ l'id n'est pas un nombre entier
@@ -53,16 +54,18 @@ server.get("/transactions/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID. Must be an integer." });
   }
 
+  const connection = await createConnection();
   const results = await connection.query(
     "SELECT * from transaction WHERE id=?",
     [transactionId]
   );
-  res.json(results[0]);
+  connection.end();
+
+  return res.json(results[0]);
 });
 
 // (crUd : UPDATE) Mise à jour d'une transaction bancaire
 server.put("/transactions/:id", async (req, res) => {
-  const connection = await createConnection();
   const transactionId = req.params.id;
   const updatedTransaction = req.body;
 
@@ -81,6 +84,7 @@ server.put("/transactions/:id", async (req, res) => {
       });
   }
 
+  const connection = await createConnection();
   await connection.query(
     "UPDATE transaction SET client_sender=?, client_receiver=?, amount=?, date=?, comment=? WHERE id=?",
     [
@@ -92,13 +96,13 @@ server.put("/transactions/:id", async (req, res) => {
       transactionId,
     ]
   );
+  connection.end();
 
   res.sendStatus(200);
 });
 
 // (cruD : DELETE) Suppression d'une transaction bancaire
 server.delete("/transactions/:id", async (req, res) => {
-  const connection = await createConnection();
   const transactionId = req.params.id;
 
   // patate chaude : /!\ l'id n'est pas un nombre entier
@@ -106,12 +110,20 @@ server.delete("/transactions/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID. Must be an integer." });
   }
 
+  const connection = await createConnection();
   await connection.query("DELETE FROM transaction WHERE id = ?", [
     transactionId,
   ]);
+  connection.end();
+
   return res.sendStatus(200);
 });
 
-server.listen(port, () => {
+const serverListener = server.listen(port, () => {
   console.log(`server Up ! and listening on port ${port}`);
 });
+
+module.exports = {
+  server: server,
+  serverListener: serverListener,
+}

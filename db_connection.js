@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-import mysql from 'mysql2/promise';
+const dotenv = require('dotenv');
+const mysql = require('mysql2/promise');
 
 // Charger les variables d'environnement depuis le fichier .env.local
 // et non depuis le .env qui ne doit contenir aucune donnée sensible ! 
@@ -24,4 +24,4 @@ async function createConnection() {
   }
 }
 
-export default createConnection;
+module.exports = createConnection;
