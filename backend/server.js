@@ -1,129 +1,19 @@
 const express = require("express");
-const createConnection = require("./modele/db_connection.js");
+const app = express();
 
-const server = express();
+app.use(express.json()); // NE PAS OUBLIER !!!
+
+// inclu toutes les routes qui ont été définies
+const routes = require("./controller/routes/routes.js")
+routes(app);
+
+// démarre le serveur
 const port = 3000;
-
-server.use(express.json()); // NE PAS OUBLIER !!!
-
-// (Crud : CREATE) Création d'une nouvelle transaction bancaire
-server.post("/transactions", async (req, res) => {
-  const transaction = req.body;
-
-  // patate chaude : /!\ le montant de la transaction dépasse les 100000 ou est inférieur à 1
-  if (transaction.amount > 100000 || transaction.amount < 1) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Invalid transaction amount.",
-      });
-  }
-
-  const connection = await createConnection();
-  await connection.query(
-    "INSERT INTO transaction(client_sender, client_receiver, amount, date, comment) VALUES(?, ?, ?, ?, ?)",
-    [
-      transaction.client_sender,
-      transaction.client_receiver,
-      transaction.amount,
-      transaction.date,
-      transaction.comment,
-    ]
-  );
-  connection.end();
-
-  return res.sendStatus(200);
-});
-
-// (cRud : READ) Lecture de toutes les transactions bancaires
-server.get("/transactions", async (req, res) => {
-  const connection = await createConnection();
-  const results = await connection.query("SELECT * from transaction");
-  connection.end();
-
-  return res.json(results[0]);
-});
-
-// (cRud : READ) Lecture d'une transactions bancaires
-server.get("/transactions/:id", async (req, res) => {
-  const transactionId = req.params.id;
-
-  // patate chaude : /!\ l'id n'est pas un nombre entier
-  if (Number.isInteger(parseInt(transactionId)) === false) {
-    return res.status(400).json({ error: "Invalid ID. Must be an integer." });
-  }
-
-  const connection = await createConnection();
-  const results = await connection.query(
-    "SELECT * from transaction WHERE id=?",
-    [transactionId]
-  );
-  connection.end();
-
-  return res.json(results[0]);
-});
-
-// (crUd : UPDATE) Mise à jour d'une transaction bancaire
-server.put("/transactions/:id", async (req, res) => {
-  const transactionId = req.params.id;
-  const updatedTransaction = req.body;
-
-  // patate chaude : /!\ l'id n'est pas un nombre entier
-  if (!Number.isInteger(parseInt(transactionId))) {
-    return res.status(400).json({ error: "Invalid ID. Must be an integer." });
-  }
-
-  // patate chaude : /!\ le montant de la transaction dépasse les 100000 ou est inférieur à 1
-  if (updatedTransaction.amount > 100000 || updatedTransaction.amount < 1) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Invalid transaction amount.",
-      });
-  }
-
-  const connection = await createConnection();
-  await connection.query(
-    "UPDATE transaction SET client_sender=?, client_receiver=?, amount=?, date=?, comment=? WHERE id=?",
-    [
-      updatedTransaction.client_sender,
-      updatedTransaction.client_receiver,
-      updatedTransaction.amount,
-      updatedTransaction.date,
-      updatedTransaction.comment,
-      transactionId,
-    ]
-  );
-  connection.end();
-
-  res.sendStatus(200);
-});
-
-// (cruD : DELETE) Suppression d'une transaction bancaire
-server.delete("/transactions/:id", async (req, res) => {
-  const transactionId = req.params.id;
-
-  // patate chaude : /!\ l'id n'est pas un nombre entier
-  if (!Number.isInteger(parseInt(transactionId))) {
-    return res.status(400).json({ error: "Invalid ID. Must be an integer." });
-  }
-
-  const connection = await createConnection();
-  await connection.query("DELETE FROM transaction WHERE id = ?", [
-    transactionId,
-  ]);
-  connection.end();
-
-  return res.sendStatus(200);
-});
-
-const serverListener = server.listen(port, () => {
+const serverListener = app.listen(port, () => {
   console.log(`server Up ! and listening on port ${port}`);
 });
 
 module.exports = {
-  server: server,
+  server: app,
   serverListener: serverListener,
 }

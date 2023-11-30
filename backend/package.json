@@ -4,7 +4,7 @@
   "description": "un repo contenant quelques étapes pour monter un CRUD sur express",
   "main": "server.js",
   "scripts": {
-    "test": "node db_reset.js && jest",
+    "test": "node modele/db_reset.js && jest",
     "reset-db": "node db_reset.js"
   },
   "author": "Matthieu Lopez",
