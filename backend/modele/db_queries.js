@@ -19,27 +19,39 @@ const newTransaction = async (req) => {
 
 const getAllTransactions = async () => {
   const connection = await createConnection();
-  const results = await connection.query("SELECT * from transaction");
+  const datas = await connection.query("SELECT * from transaction");
   connection.end();
-
-  return results;
+  return datas[0];
 };
 
 const getTransactionById = async (req) => {
   const transactionId = req.params.id
-  
   const connection = await createConnection();
-  const results = await connection.query(
+  const datas = await connection.query(
     "SELECT * from transaction WHERE id=?",
     [transactionId]
   );
-  connection.end();
 
-  return results[0];
+  connection.end();
+  return datas[0];
+};
+
+const deleteTransactionById = async (req) => {
+  const transactionId = req.params.id
+  
+  const connection = await createConnection();
+  await connection.query(
+    "DELETE FROM transaction WHERE id=?",
+    [transactionId]
+  );
+
+  connection.end();
+  return true;
 };
 
 module.exports = {
   newTransaction,
   getAllTransactions,
-  getTransactionById
+  getTransactionById,
+  deleteTransactionById
 };

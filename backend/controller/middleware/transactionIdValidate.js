@@ -1,4 +1,4 @@
-const transactionIdValidate = (req, res) => {
+const transactionIdValidate = (req, res, next) => {
   const transactionId = req.params.id
 
   // patate chaude : /!\ l'id n'est pas un nombre entier

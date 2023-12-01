@@ -10,7 +10,7 @@ routes(app);
 // démarre le serveur
 const port = 3000;
 const serverListener = app.listen(port, () => {
-  console.log(`server Up ! and listening on port ${port}`);
+  //console.log(`server Up ! and listening on port ${port}`);
 });
 
 module.exports = {

@@ -8,5 +8,6 @@ module.exports = (app) => {
     // (Crud : CREATE) Création d'une nouvelle transaction bancaire
     app.post("/transactions", transactionAmountValidate, controllers.newTransactionController);
     app.get("/transactions", controllers.getAllTransactionsController);
-    app.get("/transactions/:id", transactionIdValidate, controllers.getTransactionByIdController);    
+    app.get("/transactions/:id", transactionIdValidate, controllers.getTransactionByIdController);
+    app.delete("/transactions/:id", transactionIdValidate, controllers.deleteTransactionByIdController);
 }

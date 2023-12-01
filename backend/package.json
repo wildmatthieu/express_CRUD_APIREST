@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node modele/db_reset.js && jest",
-    "reset-db": "node db_reset.js"
+    "reset-db": "node modele/db_reset.js"
   },
   "author": "Matthieu Lopez",
   "license": "ISC",

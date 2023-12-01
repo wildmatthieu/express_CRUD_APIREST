@@ -39,8 +39,10 @@ describe("POST /transactions", () => {
 describe("GET /transactions", () => {
   it("should get all transactions", async () => {
     const response = await request.get("/transactions");
-    expect(response.body.length).toBe(2);
+
     expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(2);
   });
 });
 
@@ -48,13 +50,15 @@ describe("GET /transactions/:id", () => {
   it("should get a specific transaction by ID", async () => {
     // première transaction créée dans le test du POST plus haut
     const response1 = await request.get("/transactions/1");
-    expect(response1.body.length).toBe(1);
     expect(response1.status).toBe(200);
+    expect(response1.body).toBeDefined();
+    expect(response1.body.id).toBe(1);
 
     // deuxième transaction créée dans le test du POST plus haut
     const response2 = await request.get("/transactions/2");
-    expect(response2.body.length).toBe(1);
     expect(response2.status).toBe(200);
+    expect(response2.body).toBeDefined();
+    expect(response2.body.id).toBe(2);
   });
 
   it("should return 400 for invalid transaction ID", async () => {
@@ -63,42 +67,28 @@ describe("GET /transactions/:id", () => {
   });
 });
 
-// describe("PUT /transactions/:id", () => {
-//   it("should update a specific transaction by ID", async () => {
-//     // deuxieme transaction créé dans le test du POST plus haut
-//     const response = await request.put("/transactions/2").send({
-//       client_sender: 14,
-//       client_receiver: 37,
-//       amount: 99999,
-//       date: "2023-05-20",
-//       comment: "Updated transaction : amount modified",
-//     });
+describe("DELETE /transactions/:id", () => {
+  it("should delete a specific transaction by ID", async () => {
+     // première transaction créée dans le test du POST plus haut
+     const response1 = await request.delete("/transactions/1");
+    expect(response1.status).toBe(200);
 
-//     expect(response.status).toBe(200);
-//   });
+    // deuxième transaction créée dans le test du POST plus haut
+    const response2 = await request.delete("/transactions/2");
+    expect(response2.status).toBe(200);
 
-//   it("should return 400 for invalid transaction ID", async () => {
-//     const response = await request.put("/transactions/invalidID");
-//     expect(response.status).toBe(400);
-//   });
-// });
+    // on vérifie si la route "/transactions" en GET ne renvoie plus aucune transaction
+    const response3 = await request.get("/transactions");
+    expect(response3.status).toBe(200);
+    expect(Array.isArray(response3.body)).toBe(true);
+    expect(response3.body.length).toBe(0);
+  });
 
-// describe("DELETE /transactions/:id", () => {
-//   it("should delete a specific transaction by ID", async () => {
-//      // première transaction créée dans le test du POST plus haut
-//      const response1 = await request.get("/transactions/1");
-//     expect(response1.status).toBe(200);
-
-//     // deuxième transaction créée dans le test du POST plus haut
-//     const response2 = await request.get("/transactions/2");
-//     expect(response2.status).toBe(200);
-//   });
-
-//   it("should return 400 for invalid transaction ID", async () => {
-//     const response = await request.delete("/transactions/invalidID");
-//     expect(response.status).toBe(400);
-//   });
-// });
+  it("should return 400 for invalid transaction ID", async () => {
+    const response = await request.delete("/transactions/invalidID");
+    expect(response.status).toBe(400);
+  });
+});
 
 // On stope proprement le serveur une fois que tous les tests se sont écoulés
 afterAll(async () => {

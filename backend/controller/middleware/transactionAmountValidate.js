@@ -1,4 +1,4 @@
-const transactionAmountValidate = (req, res) => {
+const transactionAmountValidate = (req, res, next) => {
   const transaction = req.body;
 
   // patate chaude : /!\ le montant de la transaction dépasse les 100000 ou est inférieur à 1
